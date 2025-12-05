@@ -37,3 +37,26 @@
 * If you loose a worker node, you may be able to have another one created for you.
 
 ## Kubernetes Basic Concepts
+* Pods are the smallest unit that we will use in Kubernetes.
+* Is a wrapper of a container in each worker node.
+* Each worker node has multiple pods and inside each pod, you can have multiple containers.
+* Each application would have one pod. However, you could possibly have more than one pod inside a container when you have a main application that needs some helper containers.
+* There will be one pod per application such as one pod for the database, one pod for the message broker, one pod for a server and so on.
+* A node.js or Java application will also have one separate pod. 
+* The virtual network controls the Kubernetes cluster that assigns each pod it's own IP address so each pod is its own self-contained server.
+* The way they can communicate within each other is by using the interal IP addresses.
+* We only work with the pods within the Kubernetes cluster which is an abstraction layer over containers and pod is a component of Kubernetes that manages the containers running by itself.
+* Pods and the containers inside a pod are recreated frequently when they stop working. 
+* When a pod stops working and a new one gets created, the new pod gets a new IP address on creation.
+* When such a situation takes place, it gets very inconvenient in changing the IP address again and again. In order to substitute for this, another component is used named "Service". 
+* This basically is an alternative to the IP addresses and so ensures that each pod can be communicated with. 
+* Services have 2 main functionalities. One is a permanent IP address which can be used to communicate between the pods and at the same time is a load balancer.
+
+## Kubernetes Configuration
+* All configuration in the Kubernetes cluster goes through the Master node with the process called "API server".
+* A Kubernetes' client could be the UI, Kubernetes Dashboard or an API which could be a script or a curl command or a command line tool (cube CTL), they all talk to the API server and they send their configuration requests to the API server which is the main entry point or the only entry point into the cluster.
+* The requests should either be in YAML or JSON format. 
+* Deployment = a template for creating pods.
+* Configuration should be "declarative"  to declare what the desired outcome is.
+* Is == Should.
+* Controller Manager checks desired state == actual state
