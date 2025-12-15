@@ -60,3 +60,60 @@
 * Configuration should be "declarative"  to declare what the desired outcome is.
 * Is == Should.
 * Controller Manager checks desired state == actual state
+
+## Main K8 Components 
+* When we want the browser to be accessible through a browser, we would have to create an external service.
+* An external service is a service that opens the communication from external sources but for the database an internal service will be used.
+* This is a type of service that I can specify when creating.
+* The URL of the external services is normally a HTTP protocol with a Node IP address and the port number of the service which is good for testing purposes but not production.
+* For a secure URL, it should be something like this: `https://my-app.com`.
+* Another component of Kubernetes is called Ingress.
+* Before the request goes to the Service, it first goes to Ingress and it then forwards itself to Service.
+
+## Config Map and Secret
+* Pods communicate with each other using a service.
+* For example, an application will have a database endpoint named `mongodb service` that uses to communicate with the database.
+* To configure the database URL/endpoint, you would usually do it in application properties file. The database URL usually is in the `built` application.
+*  If the endpoint of the service name changed to `mongodb`, we would have to adjust that URL in the application so would usually rebuild the application with a new version, push it to the repo and then pull that new image in your pod and restart the whole thing.
+*  Since it is a bit tedious to have the small change like database URL, for that purpose. Kubernetes has a component called ConfigMap.
+*  ConfigMap creates an external configuration to your application.
+*  ConfigMap usually contains configuration data like URLs of a database or some other services that we use in Kubernetes.
+*  We just connect it to the Pod so that the Pod actually gets the data that ConfigMap contains.
+*  If we change the name of the service (the endpoint of the service), we can just adjust the config map.
+*  There is no need to build a new image or have to go through this whole cycle.
+*  Part of the external configuration could also be the database username and password. However, this may also change in the application deployment process but putting a password or other credentials in a ConfigMap in a plain text format would be insecure even though it's an external configuration. For this reason, Kubernetes has another component called `Secret`.
+*  Secret is just like ConfigMap but the difference is that it is used to store secret data. For example, credentials. This isn't stored in plain text format but in `base64 encoded` format.
+*  The built-in security mechanism is not enabled by default.
+*  In order to read data from Secret, the Pods needs to be connected to Secret.
+*  We can use data from Secret or the ConfigMap using environmental variables or even as a properties file.
+
+## Volumes
+* If the container or the Pod gets restarted, the data would be gone.
+* If you want data to be logged, and be persisted reliably long term, the way this can be done in Kubernetes is using another components of Kubernetes called `Volumes`.
+* It works by attaching a physical storage on a hard drive to the Pod. This storage could either be on a local machine (same server node where the Pod is running) or it could be on the remote storage, meaning outside of the Kubernetes cluster. This could be either cloud storage or our own premise storage which is not part of the Kubernetes cluster.
+* When the database Pod or container gets restarted, all the data will still be there.
+* Kubernetes doesn't manage data persistance.
+* As a Kubernetes user or administrator, we are responsible for backing up the data, replicating and managing the data and making sure it's kept on a proper hardware.
+
+## Deployment and Stateful Set
+* When a user can access an application through a browser,  and if an application pod dies, and user has to restart the Pod because the user built a new container image, the user would have a downtime where a user can reach their application which is a bad thing in production.
+* This is an advantage to distributed systems and containers so instead of relying on one application pod or one database pod, we are replicating everything on multiple servers.
+* This means that another node where a replica or clone of the application would run, will also be connected to the same service.
+* Service is like an persistant static IP address with a DNS name so there would be no need to constantly adjust the endpoint when a pod dies.
+* A Service also is a load balancer. This means that it actually catches the request and forwards it to whichever part is less busy.
+* In order to create the second replica of the application pod, you wouldn't create a second pod but instead would define a blueprint for the application pod and specify how many replicas of that pod you would like to run. That blueprint is called `deployment` which is another component of Kubernetes and in practice, you would not be working with or creating pods, but instead be creating deployments there, you can specify how many replicas and also scale up or scale down with the amount of pods we want.
+* Abstraction is on top of pods which makes it more convenient to interact with the pods.
+* Pods are a layer of abstraction on top of containers and deployment is another abstraction on top of pods which makes it more convenient to interact with the pods, replicate them and do some other configuration.
+* In practice, you would mostly work with deployments and not with pods.
+* If one of the replicas of our application pod would die, the service will forward the requests to another one. This would mean that the application would still be accessible for the user. This also applies for the database.
+* DB can't be replicated via Deployment. This is because database has a state which is its data.
+* This means that if we have clones or replicas of the DB, they would all need to access the same shared data storage and would need some sort of mechanism that manages which pods are currently writing to that storage or which pods are reading from that storage in order to avoid the data inconsistencies and that mechanism in addition to the replicating feature is offered by another Kubernetes component called `StatefulSet`.
+* This component is specifically meant for applications like DB. For example, MySQL, MongoDB, elastic search or any other stateful applications or databases should be created using stateful sets and not deployments.
+* Deployments for stateLESS Apps.
+* StatefulSet for stateFUL  Apps or Databases.
+* Making sure the database reads and writes are sychronized so that no database inconsistencies are offered.
+* Deploying DB StatefulSet is not easy.
+* DB are often hosted outside of K8s cluster and communicate with the external database.
+* Once we have two replicas of the application pod and two replicas of the DB and they're both load balanced, our setup is more robust. This means that even if Node 1 was fully rebooted or crashed, and nothing could run on it, we will still have a second node with application and database pods running on it and still being accessible by the user until Node 1 is replicated to avoid downtime.
+
+## 
