@@ -116,4 +116,5 @@
 * DB are often hosted outside of K8s cluster and communicate with the external database.
 * Once we have two replicas of the application pod and two replicas of the DB and they're both load balanced, our setup is more robust. This means that even if Node 1 was fully rebooted or crashed, and nothing could run on it, we will still have a second node with application and database pods running on it and still being accessible by the user until Node 1 is replicated to avoid downtime.
 
-## 
+## Kubernetes Architecture
+* 
