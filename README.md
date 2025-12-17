@@ -116,5 +116,26 @@
 * DB are often hosted outside of K8s cluster and communicate with the external database.
 * Once we have two replicas of the application pod and two replicas of the DB and they're both load balanced, our setup is more robust. This means that even if Node 1 was fully rebooted or crashed, and nothing could run on it, we will still have a second node with application and database pods running on it and still being accessible by the user until Node 1 is replicated to avoid downtime.
 
-## Kubernetes Architecture
-* 
+## Kubernetes Architecture - Node Processes
+* One of the main components of Kubernetes architecture are it's workers servers or nodes and each node will have multiple application pods with containers running on them.
+* Kubernetes does this by making sure that three processes are installed on every node that are used to schedule and manage those pods.
+* Worker nodes do the actual work.
+* The first process that needs to run on every node is the container runtime.
+* Application pods have containers running inside a container runtime needs to be installed on every node. The process that schedules the pods and containers is a process named `Kubelet`.
+* This is a process of Kubernetes itself unlike container runtime that has interface with both the container runtime and the node.
+* It's function is to start the pod with a container inside.
+* Kubernetes cluster is made up of multiple nodes, which also must have container runtime and kubelet services installed.
+* The communication between different pods and containers is by Services which is a load balancer that catches the request directed to the pod or the application and then forwards it to the respective pods.
+* The third process that is responsible for forwarding requests from services to pods is `Kube Proxy`. This should also be installed on every node.
+* A Kube Proxy has to forward the requests and ensures that the node is able to send a request witihn the same node but to a different service rather than sending it to another machine's server that could possibly increase the network overhead.
+
+## Master Processes
+* Managing processes are done by the master node.
+* 4 processes run on every master node that control the cluster state and the worker node.
+* First server is the API server.
+* This is what we as a user use to deploy a new application in a Kubernetes cluster while using some client. This could be a UI, like Kubernetes dashboard, or command line tool like Kubelet or a Kubernetes API.
+* The API server is like a cluster gateway which gets the initial request of any updates into the cluster or even the queries from the cluster.
+* It also acts as a gatekeeper for authentication to make sure that only authenticated or authorised requests get through to the cluster.
+* When the user has some sort of a request, they need to go to the API server first and request the request, where it then gets validated to other processes in order to schedule the pod or create the component that you requested.
+* If you wanted to query your status, your deployment or the cluster health, etc, you make a request to the API server and it gives you the response. This is good in terms of security as you only have 1 entrypoint into the cluster.
+* Another master process is a scheduler. 
